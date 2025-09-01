@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "experiments": [
+    {
+      "id": "exp_0001",
+      "title": "Experiment 1",
+      "type": "parameter_approx",
+      "paths": {
+        "meta": "exp_0001/meta.json",
+        "scalars": "exp_0001/scalars.json",
+        "mse_ts": "exp_0001/mse.csv",
+        "loss_ts": "exp_0001/loss.csv"
+      }
+    },
+    {
+      "id": "exp_0002",
+      "title": "Experiment 2",
+      "type": "parameter_approx",
+      "paths": {
+        "meta": "exp_0002/meta.json",
+        "scalars": "exp_0002/scalars.json",
+        "mse_ts": "exp_0002/mse.csv",
+        "loss_ts": "exp_0002/loss.csv"
+      }
+    },
+    {
+      "id": "exp_0003",
+      "title": "Experiment 3",
+      "type": "function_approx",
+      "paths": {
+        "meta": "exp_0003/meta.json",
+        "scalars": "exp_0003/scalars.json",
+        "mse_ts": "exp_0003/mse.csv",
+        "loss_ts": "exp_0003/loss.csv",
+        "params": "exp_0003/params.json"
+      }
+    },
+    {
+      "id": "exp_0004",
+      "title": "Experiment 4",
+      "type": "function_approx",
+      "paths": {
+        "meta": "exp_0004/meta.json",
+        "scalars": "exp_0004/scalars.json",
+        "mse_ts": "exp_0004/mse.csv",
+        "loss_ts": "exp_0004/loss.csv",
+        "params": "exp_0004/params.json"
+      }
+    },
+    {
+      "id": "exp_0005",
+      "title": "Experiment 5",
+      "type": "parameter_approx",
+      "paths": {
+        "meta": "exp_0005/meta.json",
+        "scalars": "exp_0005/scalars.json",
+        "mse_ts": "exp_0005/mse.csv",
+        "loss_ts": "exp_0005/loss.csv"
+      }
+    }
+  ]
+}

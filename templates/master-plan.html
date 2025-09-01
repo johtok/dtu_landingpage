@@ -1,0 +1,26 @@
+{% extends "terminimal/templates/page.html" %}
+
+{% block extra_head %}
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+  <style>
+    #gantt{background:#0b0d12;border-radius:8px;padding:20px;box-shadow:0 0 12px rgba(0,0,0,.4);margin-top:16px;overflow-x:auto}
+  </style>
+{% endblock extra_head %}
+
+{% block content %}
+  <h1>📅 Master Plan</h1>
+  <p>Live Gantt chart of tasks and milestones.</p>
+  <div id="gantt" class="mermaid">Loading…</div>
+  <script>
+    (async () => {
+      try {
+        const url = "{{ get_url(path='master/gantt_chart.mmd') }}";
+        const txt = await (await fetch(url)).text();
+        const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+        mermaid.initialize({ startOnLoad:false, theme:"dark" });
+        mermaid.render("ganttChart", txt, svg => { document.getElementById("gantt").innerHTML = svg; });
+      } catch(e) { document.getElementById("gantt").textContent = "Failed to load chart."; }
+    })();
+  </script>
+{% endblock content %}
+

@@ -1,0 +1,287 @@
+ .
+├──  .git
+│   ├── 󱁻 config
+│   ├── 󰡯 description
+│   ├── 󰡯 HEAD
+│   ├──  hooks
+│   │   ├──  applypatch-msg.sample
+│   │   ├──  commit-msg.sample
+│   │   ├──  fsmonitor-watchman.sample
+│   │   ├──  post-update.sample
+│   │   ├──  pre-applypatch.sample
+│   │   ├──  pre-commit.sample
+│   │   ├──  pre-merge-commit.sample
+│   │   ├──  pre-push.sample
+│   │   ├──  pre-rebase.sample
+│   │   ├──  pre-receive.sample
+│   │   ├──  prepare-commit-msg.sample
+│   │   ├──  push-to-checkout.sample
+│   │   ├──  sendemail-validate.sample
+│   │   └──  update.sample
+│   ├── 󰡯 index
+│   ├──  info
+│   │   └── 󰡯 exclude
+│   ├──  modules
+│   │   └──  themes
+│   │       ├──  terminimal
+│   │       │   ├── 󱁻 config
+│   │       │   ├── 󰡯 description
+│   │       │   ├── 󰡯 HEAD
+│   │       │   ├──  hooks
+│   │       │   │   ├──  applypatch-msg.sample
+│   │       │   │   ├──  commit-msg.sample
+│   │       │   │   ├──  fsmonitor-watchman.sample
+│   │       │   │   ├──  post-update.sample
+│   │       │   │   ├──  pre-applypatch.sample
+│   │       │   │   ├──  pre-commit.sample
+│   │       │   │   ├──  pre-merge-commit.sample
+│   │       │   │   ├──  pre-push.sample
+│   │       │   │   ├──  pre-rebase.sample
+│   │       │   │   ├──  pre-receive.sample
+│   │       │   │   ├──  prepare-commit-msg.sample
+│   │       │   │   ├──  push-to-checkout.sample
+│   │       │   │   ├──  sendemail-validate.sample
+│   │       │   │   └──  update.sample
+│   │       │   ├── 󰡯 index
+│   │       │   ├──  info
+│   │       │   │   └── 󰡯 exclude
+│   │       │   ├──  logs
+│   │       │   │   ├── 󰡯 HEAD
+│   │       │   │   └──  refs
+│   │       │   │       ├──  heads
+│   │       │   │       │   └── 󰡯 master
+│   │       │   │       └──  remotes
+│   │       │   │           └──  origin
+│   │       │   │               └── 󰡯 HEAD
+│   │       │   ├──  objects
+│   │       │   │   ├──  info
+│   │       │   │   └──  pack
+│   │       │   │       ├──  pack-568295ad855da50ee69b2d15f655c7b9b15ce938.idx
+│   │       │   │       ├──  pack-568295ad855da50ee69b2d15f655c7b9b15ce938.pack
+│   │       │   │       └──  pack-568295ad855da50ee69b2d15f655c7b9b15ce938.rev
+│   │       │   ├── 󰡯 packed-refs
+│   │       │   └──  refs
+│   │       │       ├──  heads
+│   │       │       │   └── 󰡯 master
+│   │       │       ├──  remotes
+│   │       │       │   └──  origin
+│   │       │       │       └── 󰡯 HEAD
+│   │       │       └──  tags
+│   │       └──  zerm
+│   │           ├── 󱁻 config
+│   │           ├── 󰡯 description
+│   │           ├── 󰡯 HEAD
+│   │           ├──  hooks
+│   │           │   ├──  applypatch-msg.sample
+│   │           │   ├──  commit-msg.sample
+│   │           │   ├──  fsmonitor-watchman.sample
+│   │           │   ├──  post-update.sample
+│   │           │   ├──  pre-applypatch.sample
+│   │           │   ├──  pre-commit.sample
+│   │           │   ├──  pre-merge-commit.sample
+│   │           │   ├──  pre-push.sample
+│   │           │   ├──  pre-rebase.sample
+│   │           │   ├──  pre-receive.sample
+│   │           │   ├──  prepare-commit-msg.sample
+│   │           │   ├──  push-to-checkout.sample
+│   │           │   ├──  sendemail-validate.sample
+│   │           │   └──  update.sample
+│   │           ├── 󰡯 index
+│   │           ├──  info
+│   │           │   └── 󰡯 exclude
+│   │           ├──  logs
+│   │           │   ├── 󰡯 HEAD
+│   │           │   └──  refs
+│   │           │       ├──  heads
+│   │           │       │   └── 󰡯 master
+│   │           │       └──  remotes
+│   │           │           └──  origin
+│   │           │               └── 󰡯 HEAD
+│   │           ├──  objects
+│   │           │   ├──  info
+│   │           │   └──  pack
+│   │           │       ├──  pack-8fc426d866bcab98d65e4ef4d0f364351a0b8d99.idx
+│   │           │       ├──  pack-8fc426d866bcab98d65e4ef4d0f364351a0b8d99.pack
+│   │           │       └──  pack-8fc426d866bcab98d65e4ef4d0f364351a0b8d99.rev
+│   │           ├── 󰡯 packed-refs
+│   │           └──  refs
+│   │               ├──  heads
+│   │               │   └── 󰡯 master
+│   │               ├──  remotes
+│   │               │   └──  origin
+│   │               │       └── 󰡯 HEAD
+│   │               └──  tags
+│   ├──  objects
+│   │   ├──  0a
+│   │   │   └── 󰡯 1c3c39288b25d78845a79a510edf2780ccfc33
+│   │   ├──  2c
+│   │   │   └── 󰡯 c105d9c96646a043593b626e9065d0ca970799
+│   │   ├──  2d
+│   │   │   └── 󰡯 08ac0b6457afc8f83f99cd10477c02d01b1590
+│   │   ├──  7d
+│   │   │   └── 󰡯 14fb8c83fd077df956b3349513bdf3f260cadf
+│   │   ├──  8a
+│   │   │   └── 󰡯 883882a03170ff87bb0dc2316d45e142f63e0c
+│   │   ├──  8c
+│   │   │   └── 󰡯 121eb65bcb82f5063e775e6fbd390eccd43bbb
+│   │   ├──  15
+│   │   │   └── 󰡯 9c59418549f9c756342ffad993a312da1e4630
+│   │   ├──  65
+│   │   │   └── 󰡯 991fd690a7901a6352c7bc601ee48bca843b70
+│   │   ├──  bd
+│   │   │   └── 󰡯 780de2cd7185189c524c4b54bb42359823b2e2
+│   │   ├──  d2
+│   │   │   └── 󰡯 d233284cc2b420bfcaceda529339883d2abf62
+│   │   ├──  f5
+│   │   │   └── 󰡯 9742e9c4153bfe2f892b8b10e6c0097539447d
+│   │   ├──  fd
+│   │   │   └── 󰡯 ce3d83fbfa631743a0e479d28bfb67bddeafc0
+│   │   ├──  info
+│   │   └──  pack
+│   └──  refs
+│       ├──  heads
+│       └──  tags
+├── 󰊢 .gitmodules
+├──  config.toml
+├──  content
+│   ├──  _index.md
+│   ├──  master
+│   │   └──  plan.md
+│   └──  master.md
+├──  sass
+├──  static
+│   ├──  color
+│   │   └──  aa4a3a.css
+│   ├──  images
+│   │   └──  Me.jpg
+│   ├──  master
+│   │   └──  gantt_chart.mmd
+│   └──  master-data
+│       ├──  exp_0001
+│       │   ├──  loss.csv
+│       │   ├──  meta.json
+│       │   ├──  mse.csv
+│       │   └──  scalars.json
+│       ├──  exp_0002
+│       │   ├──  loss.csv
+│       │   ├──  meta.json
+│       │   ├──  mse.csv
+│       │   └──  scalars.json
+│       ├──  exp_0003
+│       │   ├──  loss.csv
+│       │   ├──  meta.json
+│       │   ├──  mse.csv
+│       │   ├──  params.json
+│       │   └──  scalars.json
+│       ├──  exp_0004
+│       │   ├──  loss.csv
+│       │   ├──  meta.json
+│       │   ├──  mse.csv
+│       │   ├──  params.json
+│       │   └──  scalars.json
+│       ├──  exp_0005
+│       │   ├──  loss.csv
+│       │   ├──  meta.json
+│       │   ├──  mse.csv
+│       │   └──  scalars.json
+│       └──  manifest.json
+├──  templates
+│   ├──  index.html
+│   ├──  master-plan.html
+│   └──  master.html
+├──  themes
+│   └──  terminimal
+│       ├── 󰊢 .git
+│       ├──  .github
+│       │   └──  workflows
+│       │       └──  publish-pages.yml
+│       ├── 󰊢 .gitignore
+│       ├──  config.toml
+│       ├──  content
+│       │   ├──  _index.md
+│       │   ├──  i-dont-like-javascript.md
+│       │   ├──  learning-javascript.md
+│       │   ├──  more-ranting.md
+│       │   ├──  pages
+│       │   │   ├──  _index.md
+│       │   │   ├──  about.md
+│       │   │   └──  archive.md
+│       │   ├──  welcome-terminimal-theme.md
+│       │   └──  zola-is-nice.md
+│       ├──  LICENSE-Hack.md
+│       ├──  LICENSE.md
+│       ├── 󰂺 README.md
+│       ├──  sass
+│       │   ├──  buttons.scss
+│       │   ├──  color
+│       │   │   ├──  background_auto.scss
+│       │   │   ├──  background_blue.scss
+│       │   │   ├──  background_dark.scss
+│       │   │   ├──  background_green.scss
+│       │   │   ├──  background_light.scss
+│       │   │   ├──  background_orange.scss
+│       │   │   ├──  background_pink.scss
+│       │   │   ├──  background_red.scss
+│       │   │   ├──  blue-auto.scss
+│       │   │   ├──  blue-light.scss
+│       │   │   ├──  blue.scss
+│       │   │   ├──  green-auto.scss
+│       │   │   ├──  green-light.scss
+│       │   │   ├──  green.scss
+│       │   │   ├──  orange-auto.scss
+│       │   │   ├──  orange-light.scss
+│       │   │   ├──  orange.scss
+│       │   │   ├──  pink-auto.scss
+│       │   │   ├──  pink-light.scss
+│       │   │   ├──  pink.scss
+│       │   │   ├──  red-auto.scss
+│       │   │   ├──  red-light.scss
+│       │   │   └──  red.scss
+│       │   ├──  font-hack-subset.scss
+│       │   ├──  font-hack.scss
+│       │   ├──  footer.scss
+│       │   ├──  header.scss
+│       │   ├──  logo.scss
+│       │   ├──  main.scss
+│       │   ├──  pagination.scss
+│       │   ├──  post.scss
+│       │   ├──  style.scss
+│       │   └──  variables.scss
+│       ├──  screenshot.png
+│       ├──  static
+│       │   └──  fonts
+│       │       ├──  hack-bold-subset.woff
+│       │       ├──  hack-bold-subset.woff2
+│       │       ├──  hack-bold.woff
+│       │       ├──  hack-bold.woff2
+│       │       ├──  hack-bolditalic-subset.woff
+│       │       ├──  hack-bolditalic-subset.woff2
+│       │       ├──  hack-bolditalic.woff
+│       │       ├──  hack-bolditalic.woff2
+│       │       ├──  hack-italic-subset.woff
+│       │       ├──  hack-italic-subset.woff2
+│       │       ├──  hack-italic.woff
+│       │       ├──  hack-italic.woff2
+│       │       ├──  hack-regular-subset.woff
+│       │       ├──  hack-regular-subset.woff2
+│       │       ├──  hack-regular.woff
+│       │       └──  hack-regular.woff2
+│       ├──  templates
+│       │   ├──  404.html
+│       │   ├──  archive.html
+│       │   ├──  index.html
+│       │   ├──  macros
+│       │   │   ├──  date.html
+│       │   │   ├──  head.html
+│       │   │   ├──  menu.html
+│       │   │   ├──  post.html
+│       │   │   └──  title.html
+│       │   ├──  page.html
+│       │   ├──  shortcodes
+│       │   │   ├──  figure.html
+│       │   │   └──  image.html
+│       │   └──  tags
+│       │       ├──  list.html
+│       │       └──  single.html
+│       └──  theme.toml
+└──  tree.txt

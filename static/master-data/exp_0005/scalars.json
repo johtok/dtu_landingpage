@@ -1,0 +1,5 @@
+{
+  "training_time": 7.53,
+  "inference_cost": 0.42,
+  "validation_accuracy": 0.886
+}

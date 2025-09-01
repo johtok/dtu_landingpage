@@ -1,0 +1,45 @@
+:root { --gap:.8rem; --radius:14px; --muted:#666; }
+.app-wrap { max-width: 1100px; margin: 0 auto; padding: 1.2rem; }
+.app-header h1 { margin: 0 0 .25rem; }
+.lead { opacity:.85; margin:0 0 1rem; }
+
+.toolbar { display:grid; grid-template-columns: 1fr 180px 150px 100px; gap:var(--gap); align-items:center; margin:1rem 0; }
+.input,.select,.btn { padding:.6rem .7rem; border:1px solid #ddd; border-radius:var(--radius); font:inherit; }
+.btn { cursor:pointer; }
+.btn[disabled] { opacity:.6; cursor:not-allowed; }
+.btn--ghost { background: transparent; border: 1px solid #ddd; }
+
+.stats { margin:.2rem 0 1rem; font-size:.95rem; opacity:.85; }
+.cards { list-style:none; padding:0; margin:0; display:grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap:var(--gap); }
+.card { border:1px solid #e6e6e6; border-radius:var(--radius); padding:.9rem; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:.6rem; }
+.card-top { display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+.badge { display:inline-block; padding:.2rem .55rem; border-radius:999px; font-size:.78rem; background:#f3f3f3; }
+.meta { display:grid; grid-template-columns:auto 1fr; gap:.25rem .6rem; align-items:center; font-size:.92rem; }
+.meta dt { font-weight:600; color:var(--muted); }
+.meta dd { margin:0; }
+.tags { display:flex; gap:.25rem; flex-wrap:wrap; }
+.tag { display:inline-block; padding:.15rem .45rem; border:1px solid #eee; border-radius:999px; font-size:.78rem; }
+.footerline { margin-top:.3rem; font-size:.8rem; color:var(--muted); display:flex; gap:.6rem; align-items:center; }
+.link { cursor:pointer; text-decoration: underline; }
+
+/* Plotly spaces */
+.plot-mini { width: 100%; height: 120px; }
+.plot-full { width: 100%; height: 460px; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; display:none; }
+.modal[aria-hidden="false"] { display:block; }
+.modal__backdrop { position:absolute; inset:0; background: rgba(0,0,0,.35); }
+.modal__dialog { position:relative; margin: 4vh auto; max-width: 980px; background:#fff; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(0,0,0,.25); overflow:hidden; }
+.modal__head, .modal__foot { padding: .8rem 1rem; border-bottom: 1px solid #eee; display:flex; align-items:center; justify-content: space-between; }
+.modal__foot { border-top: 1px solid #eee; border-bottom: none; }
+.modal__head strong { font-size: 1.05rem; }
+.modal__dialog .plot-full { padding: .5rem 1rem 1rem; }
+
+/* NEW: modal controls */
+.controls { display:flex; gap:.6rem; padding:.6rem 1rem; align-items:center; border-bottom:1px solid #eee; }
+.controls label { display:flex; gap:.4rem; align-items:center; font-size:.92rem; }
+
+/* NEW: checkbox row on cards */
+.card-check { display:flex; align-items:center; gap:.5rem; }
+

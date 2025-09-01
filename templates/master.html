@@ -1,0 +1,76 @@
+{% extends "index.html" %}
+
+{% block content %}
+<link rel="preload" href="{{ get_url(path="/master/app.css") }}" as="style">
+<link rel="stylesheet" href="{{ get_url(path="/master/app.css") }}">
+
+<section class="app-wrap">
+  <header class="app-header">
+    <h1>{{ section.title | default(value="Master") }}</h1>
+    <p class="lead">Exploring experiments from <code>/master-data</code>.</p>
+  </header>
+
+  <div class="toolbar">
+    <input id="q" class="input" type="search" placeholder="Search title/tags…" aria-label="Search">
+    <select id="sort" class="select" aria-label="Sort">
+      <option value="recent">Most recent</option>
+      <option value="alpha">Title A→Z</option>
+      <option value="loss">Final loss</option>
+      <option value="mse">Final MSE</option>
+    </select>
+    <!-- NEW: Compare button -->
+    <button id="compare" class="btn" type="button" disabled>Compare (0)</button>
+    <button id="clear" class="btn" type="button">Clear</button>
+  </div>
+
+  <div id="stats" class="stats">Loading…</div>
+  <ol id="cards" class="cards" aria-live="polite"></ol>
+</section>
+
+<!-- Modal for Plotly charts (single + comparison) -->
+<div id="plot-modal" class="modal" aria-hidden="true" role="dialog" aria-label="Timeseries viewer">
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__dialog">
+    <div class="modal__head">
+      <strong id="modal-title">Timeseries</strong>
+      <button class="btn btn--ghost" title="Close" type="button" data-close>&times;</button>
+    </div>
+
+    <!-- NEW: Controls inside modal for metric + normalization -->
+    <div class="controls">
+      <label>
+        Metric
+        <select id="ctrl-metric">
+          <option value="loss">loss</option>
+          <option value="mse">mse</option>
+        </select>
+      </label>
+      <label>
+        Normalize
+        <select id="ctrl-norm">
+          <option value="none">none</option>
+          <option value="minmax">min-max</option>
+          <option value="zscore">z-score</option>
+        </select>
+      </label>
+      <label>
+        Downsample
+        <select id="ctrl-down">
+          <option value="auto">auto</option>
+          <option value="none">none</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="modal-plot" class="plot-full"></div>
+    <div class="modal__foot">
+      <a id="modal-folder" href="#" target="_blank" rel="noopener">Open experiment folder</a>
+    </div>
+  </div>
+</div>
+
+<!-- Plotly (CDN) -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+<script defer src="{{ get_url(path="/master/app.js") }}"></script>
+{% endblock content %}
+

@@ -1,0 +1,15 @@
+{
+  "dataset": "Speaker dataset A",
+  "experimenter": "Bob",
+  "tags": [
+    "woofer",
+    "tweeter"
+  ],
+  "notes": "Synthetic test experiment",
+  "units": {
+    "mse_ts.value": "-",
+    "loss_ts.value": "-",
+    "training_time": "s",
+    "inference_cost": "ms"
+  }
+}

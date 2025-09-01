@@ -1,0 +1,25 @@
+gantt
+  dateFormat  YYYY-MM-DD
+  title Master Thesis Experiment Plan
+  excludes weekends
+
+  section Experiment Setup
+  Dataset preparation      :done,    ds1, 2025-09-01, 3d
+  Measurement calibration  :active,  cal1, 2025-09-04, 2d
+  Experiment framework     :        fw1, 2025-09-06, 5d
+
+  section Parameter Approximation
+  Linear models            :done,    p1, 2025-09-10, 3d
+  Nonlinear models         :active,  p2, 2025-09-13, 7d
+  Comparison & analysis    :        p3, 2025-09-20, 3d
+
+  section Function Approximation
+  NeuralODE training       :        f1, 2025-09-23, 7d
+  PINNs evaluation         :        f2, 2025-09-30, 5d
+  Final parameter tuning   :        f3, 2025-10-05, 3d
+
+  section Reporting
+  Initial thesis draft     :        r1, 2025-10-10, 10d
+  Supervisor feedback      :        r2, 2025-10-20, 5d
+  Final submission         :        r3, 2025-10-28, 3d
+

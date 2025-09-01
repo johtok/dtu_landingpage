@@ -1,0 +1,15 @@
+{% extends "terminimal/templates/index.html" %}
+
+{% block content %}
+  {# show your _index.md body #}
+  {% if section.content and section.content | trim != "" %}
+    <article class="post">
+      <div class="post-content">
+        {{ section.content | safe }}
+      </div>
+    </article>
+  {% endif %}
+
+  {{ super() }}  {# then the normal list of pages #}
+{% endblock content %}
+
