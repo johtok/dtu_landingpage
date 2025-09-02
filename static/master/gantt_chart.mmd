@@ -1,25 +1,64 @@
 gantt
-  dateFormat  YYYY-MM-DD
-  title Master Thesis Experiment Plan
-  excludes weekends
-
-  section Experiment Setup
-  Dataset preparation      :done,    ds1, 2025-09-01, 3d
-  Measurement calibration  :active,  cal1, 2025-09-04, 2d
-  Experiment framework     :        fw1, 2025-09-06, 5d
-
-  section Parameter Approximation
-  Linear models            :done,    p1, 2025-09-10, 3d
-  Nonlinear models         :active,  p2, 2025-09-13, 7d
-  Comparison & analysis    :        p3, 2025-09-20, 3d
-
-  section Function Approximation
-  NeuralODE training       :        f1, 2025-09-23, 7d
-  PINNs evaluation         :        f2, 2025-09-30, 5d
-  Final parameter tuning   :        f3, 2025-10-05, 3d
-
-  section Reporting
-  Initial thesis draft     :        r1, 2025-10-10, 10d
-  Supervisor feedback      :        r2, 2025-10-20, 5d
-  Final submission         :        r3, 2025-10-28, 3d
-
+    title Master Thesis Timeline - Data-Driven Nonlinear Loudspeaker Modeling
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+    
+    section Foundation & Theory
+    Literature review (nonlinear)    :done, lit1, 2024-07-01, 2024-07-20
+    Control theory review           :done, control_theory, 2024-07-05, 2024-07-25
+    Dynamical systems theory        :done, dyn_sys, 2024-07-10, 2024-07-30
+    ML theory (Julia SciML)         :done, ml_theory, 2024-07-15, 2024-08-05
+    Problem definition & scope       :active, prob, 2024-09-01, 2024-09-05
+    
+    section Linear Baseline
+    Thiele-Small parameter extraction :done, ts, 2024-09-05, 2024-09-15
+    Small-signal frequency response  :done, freq, 2024-09-15, 2024-09-25
+    Linear model validation          :done, linear_val, 2024-09-25, 2024-10-05
+    
+    section Data-Driven Modeling
+    Polynomial models (Volterra)     :done, volterra, 2024-08-15, 2024-09-01
+    Sparse identification (SINDy)   :done, sindy, 2024-08-20, 2024-09-05
+    Gaussian Process models          :done, gp, 2024-08-25, 2024-09-10
+    Gray-box model development       :done, graybox, 2024-09-01, 2024-09-15
+    Neural network baseline          :active, neural, 2024-09-02, 2024-09-20
+    
+    section Model Validation
+    Cross-validation framework       :crossval, 2025-01-06, 2025-01-13
+    Generalization testing           :gen_test, 2025-01-13, 2025-01-20
+    Interpretability analysis        :interp, 2025-01-20, 2025-01-27
+    
+    section Physical Insight
+    Parameter physical meaning       :phys_param, 2024-11-17, 2024-12-01
+    Nonlinearity mechanism isolation :mech_iso, 2024-12-01, 2024-12-15
+    Thermal-mechanical coupling      :coupling, 2024-12-15, 2025-01-06
+    
+    section Applications
+    Design optimization tools        :design, 2025-01-06, 2025-01-20
+    Diagnostics & fault detection    :diag, 2025-01-13, 2025-01-27
+    Control-oriented modeling        :control, 2025-01-20, 2025-01-27
+    
+    section Documentation
+    Chapter 1: Introduction          :doc1, 2024-10-27, 2024-11-10
+    Chapter 2: Theory & Methods      :doc2, 2024-11-10, 2024-11-24
+    Chapter 3: Experimental Setup    :doc3, 2024-11-24, 2024-12-08
+    Chapter 4: Linear Baseline       :doc4, 2024-12-08, 2024-12-22
+    Chapter 5: Nonlinear Modeling    :doc5, 2024-12-22, 2025-01-06
+    Chapter 6: Results & Analysis    :doc6, 2025-01-06, 2025-01-20
+    Chapter 7: Conclusions           :doc7, 2025-01-20, 2025-01-27
+    
+    section Submission & Defense
+    Complete draft                   :draft, 2025-01-27, 2025-02-03
+    Supervisor review & feedback     :review, 2025-02-03, 2025-02-10
+    Final revisions                  :revise, 2025-02-10, 2025-02-17
+    Defense presentation prep        :def_prep, 2025-02-17, 2025-02-24
+    
+    section Key Milestones
+    Theory foundation complete      :milestone, theory_done, 2024-08-05, 1d
+    Data-driven experiments done     :milestone, dd_done, 2024-09-15, 1d
+    Problem definition (today)       :crit, milestone, prob_def, 2024-09-02, 1d
+    Neural network baseline complete :milestone, neural_done, 2024-09-20, 1d
+    All modeling approaches ready    :milestone, all_models, 2024-09-20, 1d
+    Midterm presentation            :milestone, midterm, 2024-12-20, 1d
+    Thesis draft submitted          :milestone, draft_sub, 2025-02-01, 1d
+    Final thesis submission         :crit, milestone, final_sub, 2025-02-15, 1d
+    Thesis defense                  :crit, milestone, defense, 2025-02-25, 1d

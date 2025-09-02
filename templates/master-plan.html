@@ -1,26 +1,137 @@
-{% extends "terminimal/templates/page.html" %}
-
-{% block extra_head %}
-  <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
-  <style>
-    #gantt{background:#0b0d12;border-radius:8px;padding:20px;box-shadow:0 0 12px rgba(0,0,0,.4);margin-top:16px;overflow-x:auto}
-  </style>
-{% endblock extra_head %}
+{% extends "index.html" %}
 
 {% block content %}
-  <h1>📅 Master Plan</h1>
-  <p>Live Gantt chart of tasks and milestones.</p>
-  <div id="gantt" class="mermaid">Loading…</div>
-  <script>
-    (async () => {
-      try {
-        const url = "{{ get_url(path='master/gantt_chart.mmd') }}";
-        const txt = await (await fetch(url)).text();
-        const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
-        mermaid.initialize({ startOnLoad:false, theme:"dark" });
-        mermaid.render("ganttChart", txt, svg => { document.getElementById("gantt").innerHTML = svg; });
-      } catch(e) { document.getElementById("gantt").textContent = "Failed to load chart."; }
-    })();
-  </script>
-{% endblock content %}
+<div class="post">
+    <div class="post-content">
+        {{ page.content | safe }}
 
+        <div id="graphDiv"></div>
+    </div>
+</div>
+
+<script src="https://bumbu.me/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ 
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'loose',
+        gantt: {
+            fontSize: 14,
+            fontFamily: 'Fira Code, monospace',
+            gridLineStartPadding: 350,
+            leftPadding: 120,
+            numberSectionStyles: 4
+        },
+        themeVariables: {
+            primaryColor: '#ff9800',
+            primaryTextColor: '#ffffff',
+            primaryBorderColor: '#ff9800',
+            lineColor: '#ff9800',
+            secondaryColor: '#1a1a1a',
+            tertiaryColor: '#333333',
+            background: '#121212',
+            mainBkg: '#1a1a1a',
+            secondBkg: '#333333'
+        }
+    });
+
+    const drawDiagram = async function () {
+        const element = document.querySelector('#graphDiv');
+        
+        try {
+            // Fetch the gantt chart definition
+            const url = "{{ get_url(path='master/gantt_chart.mmd') }}";
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const graphDefinition = await response.text();
+            const { svg } = await mermaid.render('mySvgId', graphDefinition);
+            element.innerHTML = svg.replace(/( )*max-width:( 0-9\.)*px;/i, '');
+
+            var doPan = false;
+            var eventsHandler;
+            var panZoom;
+            var mousepos;
+
+            eventsHandler = {
+                haltEventListeners: ['mousedown', 'mousemove', 'mouseup']
+
+                , mouseDownHandler: function (ev) {
+                    if (event.target.className == "[object SVGAnimatedString]") {
+                        doPan = true;
+                        mousepos = { x: ev.clientX, y: ev.clientY }
+                    };
+                }
+
+                , mouseMoveHandler: function (ev) {
+                    if (doPan) {
+                        panZoom.panBy({ x: ev.clientX - mousepos.x, y: ev.clientY - mousepos.y });
+                        mousepos = { x: ev.clientX, y: ev.clientY };
+                        window.getSelection().removeAllRanges();
+                    }
+                }
+
+                , mouseUpHandler: function (ev) {
+                    doPan = false;
+                }
+
+                , init: function (options) {
+                    options.svgElement.addEventListener('mousedown', this.mouseDownHandler, false);
+                    options.svgElement.addEventListener('mousemove', this.mouseMoveHandler, false);
+                    options.svgElement.addEventListener('mouseup', this.mouseUpHandler, false);
+                }
+
+                , destroy: function (options) {
+                    options.svgElement.removeEventListener('mousedown', this.mouseDownHandler, false);
+                    options.svgElement.removeEventListener('mousemove', this.mouseMoveHandler, false);
+                    options.svgElement.removeEventListener('mouseup', this.mouseUpHandler, false);
+                }
+            }
+            panZoom = svgPanZoom('#mySvgId', {
+                zoomEnabled: true
+                , controlIconsEnabled: true
+                , fit: 1
+                , center: 1
+                , customEventsHandler: eventsHandler
+            })
+        } catch(error) {
+            console.error('Gantt chart error:', error);
+            element.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: var(--color);">
+                    <h3>📅 Gantt Chart Error</h3>
+                    <p>Could not load the Gantt chart: ${error.message}</p>
+                </div>
+            `;
+        }
+    };
+    await drawDiagram();
+</script>
+
+<style>
+#mySvgId {
+    height: 90%;
+    width: 100%;
+}
+
+#graphDiv {
+    height: 700px;
+    width: 100%;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    margin: 20px 0;
+    background: var(--background);
+}
+
+/* Improve layout for Gantt chart */
+.post {
+    max-width: none !important;
+}
+
+.post-content {
+    max-width: none !important;
+}
+</style>
+{% endblock content %}

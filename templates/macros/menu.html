@@ -1,0 +1,224 @@
+{% macro menu(config, current_path) %}
+    {%- set current_item = false -%}
+    {%- set current_parent = false -%}
+    {%- set current_url = current_path -%}
+    {%- if page %}
+        {%- set current_url = page.permalink -%}
+    {%- elif section %}
+        {%- set current_url = section.permalink -%}
+    {%- endif -%}
+    {%- if config.extra.menu_items %}
+        {%- set menu_items = config.extra.menu_items -%}
+
+            {%- for item in menu_items %}
+                {%- if item.url %}
+                    {%- set abs_item_url = item.url | replace(from="$BASE_URL", to=config.base_url) -%}
+                    {%- set is_current = current_url == abs_item_url ~ "/"
+                                         or current_url is starting_with(abs_item_url)
+                    -%}
+                    {%- set is_base = abs_item_url == config.base_url
+                                      or abs_item_url == config.base_url ~ "/"
+                    -%}
+                {%- else -%}
+                    {%- set abs_item_url = "" -%}
+                    {%- set is_current = false -%}
+                    {%- set is_base = false -%}
+                {%- endif -%}
+
+                {%- if is_base %}
+                    {%- set_global base_item = item -%}
+                {% endif -%}
+
+                {%- if is_current and not is_base %}
+                    {%- set_global current_item = item -%}
+                    {%- if item.parent %}
+                        {%- set_global current_parent = item.parent -%}
+                    {% endif -%}
+                {% endif -%}
+
+                {# Check if this is a parent item and current_url matches any of its children #}
+                {%- if item.submenu %}
+                    {%- for subitem in item.submenu %}
+                        {%- set abs_subitem_url = subitem.url | replace(from="$BASE_URL", to=config.base_url) -%}
+                        {%- set is_sub_current = false -%}
+                        {%- if current_url -%}
+                            {%- set is_sub_current = current_url == abs_subitem_url ~ "/"
+                                                     or current_url == abs_subitem_url
+                                                     or current_url is starting_with(abs_subitem_url ~ "/")
+                            -%}
+                        {%- endif -%}
+                        {%- if is_sub_current %}
+                            {%- set_global current_item = subitem -%}
+                            {%- set_global current_parent = item.name -%}
+                        {% endif -%}
+                    {% endfor -%}
+                {% endif -%}
+            {% endfor -%}
+
+            {%- if not current_item and base_item %}
+                {# Did not match any menu URLs -- use base item #}
+                {%- set current_item = base_item -%}
+            {% endif -%}
+
+            {{ menu_macros::menu_for(config=config, current_item=current_item, current_parent=current_parent) }}
+    {% endif -%}
+{% endmacro menu %}
+
+{% macro menu_for(config, current_item, current_parent) %}
+    {%- if config.extra.menu_items %}
+        {%- set menu_items = config.extra.menu_items -%}
+
+        <nav class="menu">
+            <ul class="menu__inner">
+            {%- for item in menu_items %}
+                {%- set is_parent_active = current_parent and current_parent == item.name -%}
+                <li {%- if (current_item and current_item == item) or is_parent_active %} class="active" {%- endif %}>
+                    {%- if item.submenu %}
+                        {# This is a parent item with submenu - only show submenu when in master section #}
+                        {%- if current_url and (current_url is starting_with(config.base_url ~ "/master") or current_url is starting_with(config.base_url ~ "master")) %}
+                            <div class="menu-dropdown active-section">
+                                {%- if item.url -%}
+                                    <a href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}" class="menu-parent-link">{{ item.name | safe }}</a>
+                                {%- else -%}
+                                    <span class="menu-parent">{{ item.name | safe }}</span>
+                                {%- endif -%}
+                                <ul class="submenu visible">
+                                    {%- for subitem in item.submenu %}
+                                        {%- set subitem_abs_url = subitem.url | replace(from="$BASE_URL", to=config.base_url) -%}
+                                        {%- set is_current_subitem = false -%}
+                                                                {# Direct path matching for known URLs #}
+                        {%- if subitem.name == "plan" and current_url and current_url is containing("/master/plan") -%}
+                            {%- set is_current_subitem = true -%}
+                        {%- elif subitem.name == "results" and current_url and current_url is containing("/master/results") -%}
+                            {%- set is_current_subitem = true -%}
+                        {%- elif subitem.name == "mindmap" and current_url and current_url is containing("/master/mindmap") -%}
+                            {%- set is_current_subitem = true -%}
+                        {%- endif -%}
+                                        <li {%- if is_current_subitem %} class="active" {%- endif %}>
+                                            {%- if is_current_subitem -%}
+                                                <span class="current-tab">{{ subitem.name | safe }}</span>
+                                            {%- else -%}
+                                                {%- if subitem.newtab -%}
+                                                    <a href="{{ subitem_abs_url | safe }}" target="_blank" rel="noopener noreferrer">{{ subitem.name | safe }}</a>
+                                                {%- else -%}
+                                                    <a href="{{ subitem_abs_url | safe }}">{{ subitem.name | safe }}</a>
+                                                {%- endif -%}
+                                            {%- endif -%}
+                                        </li>
+                                    {% endfor -%}
+                                </ul>
+                            </div>
+                        {%- else -%}
+                            {%- if item.url -%}
+                                <a href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}">{{ item.name | safe }}</a>
+                            {%- else -%}
+                                <span class="menu-parent">{{ item.name | safe }}</span>
+                            {%- endif -%}
+                        {%- endif -%}
+                    {%- else -%}
+                        {# Regular menu item #}
+                        {%- if item.newtab -%}
+                            <a href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}" target="_blank" rel="noopener noreferrer">{{ item.name | safe }}</a>
+                        {%- else -%}
+                            <a href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}">{{ item.name | safe }}</a>
+                        {%- endif -%}
+                    {%- endif -%}
+                </li>
+            {% endfor -%}
+            </ul>
+        </nav>
+    {% endif -%}
+{% endmacro menu %}
+
+<style>
+.menu-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-parent {
+    cursor: pointer;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.menu-parent-link {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.menu-parent-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.current-tab {
+    color: var(--accent);
+    font-weight: bold;
+    cursor: default;
+}
+
+.menu-dropdown:hover .submenu:not(.visible) {
+    display: block;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--background);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    min-width: 150px;
+    z-index: 1000;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.submenu.visible {
+    display: inline-block;
+    position: relative;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    z-index: auto;
+}
+
+.active-section .submenu.visible {
+    margin-left: 16px;
+}
+
+.active-section .submenu.visible li {
+    display: inline-block;
+    margin-right: 16px;
+}
+
+.submenu li {
+    margin: 0;
+    padding: 0;
+}
+
+.submenu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--color);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-alpha-20);
+}
+
+.submenu a:hover {
+    background: var(--accent-alpha-20);
+    color: var(--accent);
+}
+
+.submenu li:last-child a {
+    border-bottom: none;
+}
+
+.submenu li.active a {
+    color: var(--accent);
+    background: var(--accent-alpha-20);
+}
+</style>
