@@ -16,6 +16,46 @@
     .app-wrap {
         margin-top: 20px;
     }
+    
+    /* Enhanced controls styling */
+    .controls {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+        padding: 15px;
+        background: var(--accent-alpha-20);
+        border-radius: 8px;
+    }
+    
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .control-group > label {
+        font-weight: bold;
+        color: var(--accent);
+    }
+    
+    .checkbox-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: normal;
+        cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        margin: 0;
+    }
 </style>
 {% endblock extra_head %}
 
@@ -60,30 +100,36 @@
       <button class="btn btn--ghost" title="Close" type="button" data-close>&times;</button>
     </div>
 
-    <!-- NEW: Controls inside modal for metric + normalization -->
+    <!-- Enhanced Controls for multiple data types -->
     <div class="controls">
-      <label>
-        Metric
-        <select id="ctrl-metric">
-          <option value="loss">loss</option>
-          <option value="mse">mse</option>
-        </select>
-      </label>
-      <label>
-        Normalize
-        <select id="ctrl-norm">
-          <option value="none">none</option>
-          <option value="minmax">min-max</option>
-          <option value="zscore">z-score</option>
-        </select>
-      </label>
-      <label>
-        Downsample
-        <select id="ctrl-down">
-          <option value="auto">auto</option>
-          <option value="none">none</option>
-        </select>
-      </label>
+      <div class="control-group">
+        <label>Data Types</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="show-loss" checked> Loss</label>
+          <label><input type="checkbox" id="show-mse" checked> MSE</label>
+          <label><input type="checkbox" id="show-accuracy"> Accuracy</label>
+          <label><input type="checkbox" id="show-pred-complex"> Complex Response</label>
+          <label><input type="checkbox" id="show-pred-pink"> Pink Noise Response</label>
+          <label><input type="checkbox" id="show-spec"> Spectrograms</label>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>
+          Normalize
+          <select id="ctrl-norm">
+            <option value="none">none</option>
+            <option value="minmax">min-max</option>
+            <option value="zscore">z-score</option>
+          </select>
+        </label>
+        <label>
+          Downsample
+          <select id="ctrl-down">
+            <option value="auto">auto</option>
+            <option value="none">none</option>
+          </select>
+        </label>
+      </div>
     </div>
 
     <div id="modal-plot" class="plot-full"></div>
