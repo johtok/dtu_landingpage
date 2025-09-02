@@ -1,6 +1,9 @@
-// Updated: 2025-09-02 11:55 - Fixed manifest loading and added error handling
+// Updated: 2025-09-02 12:05 - Added refresh manifest button with debug controls
 (async function () {
   try {
+  // Debug flag - set to false for production
+  const DEBUG = window.location.search.includes('debug') || window.location.hostname === 'localhost';
+  
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const by = (k) => (a, b) => (a[k] > b[k]) ? 1 : (a[k] < b[k]) ? -1 : 0;
@@ -8,7 +11,11 @@
   // Use URLs directly injected from Zola template
   const manifestUrl = window.MANIFEST_URL || '/master-data/manifest.json';
   const dataBaseUrl = window.DATA_BASE_URL || '/master-data';
-  console.log('App loaded! Using URLs:', { manifestUrl, dataBaseUrl });
+  
+  if (DEBUG) {
+    console.log('🐛 Debug mode enabled');
+    console.log('App loaded! Using URLs:', { manifestUrl, dataBaseUrl });
+  }
 
   const cards = $('#cards');
   const stats = $('#stats');
@@ -17,6 +24,7 @@
   const clear = $('#clear');
   const compareBtn = $('#compare');
   const selectToggleBtn = $('#select-toggle');
+  const refreshManifestBtn = $('#refresh-manifest');
 
   // modal elements
   const modal = $('#plot-modal');
@@ -34,19 +42,27 @@
   const showPredPink = $('#show-pred-pink');
   const showSpec = $('#show-spec');
 
-  // --- helpers ---
+  // --- helpers with conditional timing ---
   const fetchJSON = async (url) => {
-    console.log('Fetching JSON from:', url);
+    const start = DEBUG ? performance.now() : 0;
+    if (DEBUG) console.log('Fetching JSON from:', url);
     const r = await fetch(url);
-    console.log('Fetch response:', { url, status: r.status, ok: r.ok });
+    const fetchTime = DEBUG ? performance.now() - start : 0;
+    if (DEBUG) console.log('Fetch response:', { url, status: r.status, ok: r.ok, fetchTime: `${fetchTime.toFixed(1)}ms` });
     if (!r.ok) throw new Error(`GET ${url} ${r.status} ${r.statusText}`);
+    const parseStart = DEBUG ? performance.now() : 0;
     const data = await r.json();
-    console.log('JSON data received:', data);
+    const parseTime = DEBUG ? performance.now() - parseStart : 0;
+    if (DEBUG) console.log('JSON parsed:', { url, parseTime: `${parseTime.toFixed(1)}ms`, totalTime: `${(fetchTime + parseTime).toFixed(1)}ms` });
     return data;
   };
   const fetchCSV = async (url) => {
+    const start = DEBUG ? performance.now() : 0;
     const r = await fetch(url);
     if (!r.ok) return null;
+    const fetchTime = DEBUG ? performance.now() - start : 0;
+    
+    const parseStart = DEBUG ? performance.now() : 0;
     const text = await r.text();
     const lines = text.trim().split(/\r?\n/).filter(Boolean);
     const series = [];
@@ -55,7 +71,123 @@
       const v = Number(parts[parts.length - 1]);
       if (Number.isFinite(v)) series.push(v);
     }
+    const parseTime = DEBUG ? performance.now() - parseStart : 0;
+    const totalTime = fetchTime + parseTime;
+    
+    if (DEBUG && totalTime > 50) { // Only log slow requests in debug mode
+      console.log('CSV loaded:', { 
+        url, 
+        lines: lines.length,
+        fetchTime: `${fetchTime.toFixed(1)}ms`, 
+        parseTime: `${parseTime.toFixed(1)}ms`,
+        totalTime: `${totalTime.toFixed(1)}ms`
+      });
+    }
+    
     return { series, last: series.length ? series[series.length - 1] : null };
+  };
+
+  // Dynamic manifest generation
+  const generateManifest = async () => {
+    if (DEBUG) console.log('🔄 Generating fresh manifest...');
+    stats.textContent = 'Scanning for experiments...';
+    
+    const experiments = [];
+    const discoveredExperiments = new Set();
+    
+    // Try common experiment patterns
+    const commonExpPrefixes = [
+      'linear_model_baseline_',
+      'neural_ode_baseline_', 
+      'dmd_baseline_',
+      'sindy_discovery_',
+      'reservoir_computing_',
+      'nonlinear_model_baseline_',
+      'reference_nonlinear_model_',
+      'symbolic_regression_',
+      'test_experiment_'
+    ];
+    
+    // Batch HEAD requests for efficiency
+    const checkBatch = async (expIds) => {
+      const promises = expIds.map(async (expId) => {
+        try {
+          const metaUrl = `${dataBaseUrl}/${expId}/meta.json`;
+          const response = await fetch(metaUrl, { method: 'HEAD' });
+          return response.ok ? expId : null;
+        } catch {
+          return null;
+        }
+      });
+      
+      const results = await Promise.all(promises);
+      return results.filter(id => id !== null);
+    };
+    
+    // Check experiments in batches
+    for (const prefix of commonExpPrefixes) {
+      const batch = [];
+      for (let i = 1; i <= 20; i++) {
+        batch.push(`${prefix}20250902_${i.toString().padStart(3, '0')}`);
+      }
+      
+      const foundIds = await checkBatch(batch);
+      foundIds.forEach(id => discoveredExperiments.add(id));
+    }
+    
+    // Extract data for discovered experiments
+    for (const expId of discoveredExperiments) {
+      try {
+        const metaUrl = `${dataBaseUrl}/${expId}/meta.json`;
+        const scalarsUrl = `${dataBaseUrl}/${expId}/scalars.json`;
+        
+        const meta = await fetchJSON(metaUrl).catch(() => ({}));
+        const scalars = await fetchJSON(scalarsUrl).catch(() => ({}));
+        
+        if (!meta && !scalars) continue; // No valid data
+        
+        // Determine available files by testing existence
+        const fileChecks = [
+          { key: 'meta', file: 'meta.json' },
+          { key: 'params', file: 'params.json' },
+          { key: 'scalars', file: 'scalars.json' },
+          { key: 'loss_ts', file: 'loss.csv' },
+          { key: 'mse_ts', file: 'mse.csv' },
+          { key: 'pred_complex_ts', file: 'pred_complex.csv' },
+          { key: 'pred_pink_ts', file: 'pred_pink.csv' },
+          { key: 'spec_complex', file: 'spec_complex.csv' },
+          { key: 'spec_pink', file: 'spec_pink.csv' }
+        ];
+        
+        const paths = {};
+        const pathChecks = fileChecks.map(async ({key, file}) => {
+          try {
+            const response = await fetch(`${dataBaseUrl}/${expId}/${file}`, { method: 'HEAD' });
+            if (response.ok) {
+              paths[key] = `${expId}/${file}`;
+            }
+          } catch (e) {
+            // File doesn't exist, skip
+          }
+        });
+        
+        await Promise.all(pathChecks);
+        
+        experiments.push({
+          id: expId,
+          title: meta.title || expId,
+          type: meta.type || 'function_approx',
+          paths: paths
+        });
+        
+        if (DEBUG) console.log(`+ ${expId}: Added to manifest`);
+      } catch (e) {
+        console.warn(`Failed to process ${expId}:`, e);
+      }
+    }
+    
+    if (DEBUG) console.log(`✅ Generated manifest with ${experiments.length} experiments`);
+    return { experiments, version: 1 };
   };
 
   const waitPlotly = async () => {
@@ -80,6 +212,39 @@
     await Plotly.newPlot(el, data, layout, cfg);
   };
 
+  // Lazy load additional data for an experiment
+  const lazyLoadExperimentData = async (expData) => {
+    if (!expData._lazyPaths) return;
+    
+    const lazyStart = DEBUG ? performance.now() : 0;
+    if (DEBUG) console.log(`🔄 Lazy loading additional data for ${expData.id}...`);
+    
+    // Only load data that hasn't been loaded yet
+    const toLoad = [];
+    if (!expData.pred_complex_series && showPredComplex?.checked) {
+      toLoad.push(fetchCSV(expData._lazyPaths.predComplex).then(data => ({ key: 'pred_complex_series', data: data?.series })));
+    }
+    if (!expData.pred_pink_series && showPredPink?.checked) {
+      toLoad.push(fetchCSV(expData._lazyPaths.predPink).then(data => ({ key: 'pred_pink_series', data: data?.series })));
+    }
+    if (!expData.spec_complex_series && showSpec?.checked) {
+      toLoad.push(fetchCSV(expData._lazyPaths.specComplex).then(data => ({ key: 'spec_complex_series', data: data?.series })));
+    }
+    if (!expData.spec_pink_series && showSpec?.checked) {
+      toLoad.push(fetchCSV(expData._lazyPaths.specPink).then(data => ({ key: 'spec_pink_series', data: data?.series })));
+    }
+    
+    if (toLoad.length > 0) {
+      const results = await Promise.all(toLoad);
+      for (const {key, data} of results) {
+        expData[key] = data;
+      }
+      
+      const lazyTime = DEBUG ? performance.now() - lazyStart : 0;
+      if (DEBUG) console.log(`💾 Lazy loaded ${toLoad.length} datasets for ${expData.id} in ${lazyTime.toFixed(1)}ms`);
+    }
+  };
+
   const openModalSingle = async (expData) => {
     modalTitle.textContent = expData.title;
     modalFolder.href = expData.path + '/';
@@ -89,6 +254,9 @@
     container.style.width = '100%'; container.style.height = '100%';
     modalPlot.appendChild(container);
     if (!await waitPlotly()) return;
+
+    // Lazy load additional data if needed
+    await lazyLoadExperimentData(expData);
 
     const traces = [];
     const norm = ctrlNorm?.value || 'none';
@@ -175,6 +343,10 @@
     container.style.width = '100%'; container.style.height = '100%';
     modalPlot.appendChild(container);
     if (!await waitPlotly()) return;
+
+    // Lazy load additional data for all selected experiments in parallel
+    const selectedRows = Array.from(selected.keys()).map(id => rows.find(x => x.id === id)).filter(Boolean);
+    await Promise.all(selectedRows.map(r => lazyLoadExperimentData(r)));
 
     const traces = [];
     const colors = ['#ff9800', '#2196f3', '#4caf50', '#f44336', '#9c27b0', '#ff5722', '#607d8b', '#795548'];
@@ -277,30 +449,58 @@
   showPredPink?.addEventListener('change', rerenderIfCompare);
   showSpec?.addEventListener('change', rerenderIfCompare);
 
-  // --- load manifest ---
-  console.log('Loading manifest...');
+  // --- load manifest or generate dynamically ---
+  const loadStart = DEBUG ? performance.now() : 0;
+  if (DEBUG) console.log('Loading manifest...');
   stats.textContent = 'Loading manifest...';
   let manifest;
+  let useGeneratedManifest = false;
   
   try {
     manifest = await fetchJSON(manifestUrl);
-    console.log('✅ Loaded manifest with', manifest?.experiments?.length || 0, 'experiments');
+    if (DEBUG) console.log('✅ Loaded manifest with', manifest?.experiments?.length || 0, 'experiments');
   } catch (e) {
-    stats.textContent = `Failed to load manifest: ${e.message}`;
-    console.error('Manifest load error:', e);
-    return;
+    if (DEBUG) console.log('No manifest found, generating dynamically...');
+    useGeneratedManifest = true;
+    manifest = await generateManifest();
+    if (DEBUG) console.log('✅ Generated manifest with', manifest?.experiments?.length || 0, 'experiments');
   }
+  
+  const manifestTime = DEBUG ? performance.now() - loadStart : 0;
+  if (DEBUG) console.log(`⏱️ Manifest loading took: ${manifestTime.toFixed(1)}ms`);
   
   let expList = Array.isArray(manifest) ? manifest : 
                Array.isArray(manifest.experiments) ? manifest.experiments : [];
 
-  // Experiments are already in the correct format from auto-generation
+  // Deduplicate experiments (same ID can appear multiple times in manifest)
+  const expMap = new Map();
+  for (const exp of expList) {
+    if (!expMap.has(exp.id)) {
+      expMap.set(exp.id, exp);
+    } else {
+      // Merge paths if experiment appears multiple times
+      const existing = expMap.get(exp.id);
+      existing.paths = { ...existing.paths, ...exp.paths };
+    }
+  }
+  expList = Array.from(expMap.values());
+  
+  if (DEBUG) console.log(`📋 Deduplicated to ${expList.length} unique experiments`);
 
   // --- hydrate experiments ---
+  const hydrateStart = DEBUG ? performance.now() : 0;
   stats.textContent = 'Loading experiments…';
   const rows = [];
-  for (const e of expList) {
+  
+  if (DEBUG) console.log(`🔄 Starting hydration of ${expList.length} experiments`);
+  
+  for (let i = 0; i < expList.length; i++) {
+    const e = expList[i];
+    const expStart = DEBUG ? performance.now() : 0;
+    
     try {
+      if (DEBUG) stats.textContent = `Loading experiments… (${i+1}/${expList.length})`;
+      
       // Handle both old and new manifest formats
       let metaUrl, scalarsUrl, paramsUrl, lossUrl, mseUrl;
       
@@ -320,17 +520,21 @@
         mseUrl = `${dataBaseUrl}/${e.id}/mse.csv`;
       }
       
-      const meta = await fetchJSON(metaUrl).catch(()=> ({}));
-      const scalars = await fetchJSON(scalarsUrl).catch(()=> ({}));
-      const params = await fetchJSON(paramsUrl).catch(()=> ({}));
-      const loss = await fetchCSV(lossUrl);
-      const mse  = await fetchCSV(mseUrl);
+      const fetchStart = DEBUG ? performance.now() : 0;
       
-      // Load additional data types
-      const predComplex = await fetchCSV(`${dataBaseUrl}/${e.id}/pred_complex.csv`);
-      const predPink = await fetchCSV(`${dataBaseUrl}/${e.id}/pred_pink.csv`);
-      const specComplex = await fetchCSV(`${dataBaseUrl}/${e.id}/spec_complex.csv`);
-      const specPink = await fetchCSV(`${dataBaseUrl}/${e.id}/spec_pink.csv`);
+      // Load only essential data for initial display (JSON files + basic timeseries)
+      const [meta, scalars, params, loss, mse] = await Promise.all([
+        fetchJSON(metaUrl).catch(()=> ({})),
+        fetchJSON(scalarsUrl).catch(()=> ({})),
+        fetchJSON(paramsUrl).catch(()=> ({})),
+        fetchCSV(lossUrl),
+        fetchCSV(mseUrl)
+      ]);
+      
+      const coreTime = DEBUG ? performance.now() - fetchStart : 0;
+      
+      // Don't load large CSV files initially - lazy load them when needed for plotting
+      // This saves significant time since pred_* and spec_* files are much larger
       
       // Extract accuracy timeseries (we'll need to create this from max_accuracy if it's not a series)
       const accuracy = scalars.accuracy_series || (scalars.max_accuracy ? [scalars.max_accuracy] : null);
@@ -350,16 +554,51 @@
         loss_series: loss?.series ?? null, 
         mse_series: mse?.series ?? null,
         accuracy_series: accuracy,
-        pred_complex_series: predComplex?.series ?? null,
-        pred_pink_series: predPink?.series ?? null,
-        spec_complex_series: specComplex?.series ?? null,
-        spec_pink_series: specPink?.series ?? null,
-        meta, scalars, params
+        // Lazy-loaded properties (loaded on demand)
+        pred_complex_series: null,
+        pred_pink_series: null,
+        spec_complex_series: null,
+        spec_pink_series: null,
+        meta, scalars, params,
+        // Store paths for lazy loading
+        _lazyPaths: {
+          predComplex: `${dataBaseUrl}/${e.id}/pred_complex.csv`,
+          predPink: `${dataBaseUrl}/${e.id}/pred_pink.csv`,
+          specComplex: `${dataBaseUrl}/${e.id}/spec_complex.csv`,
+          specPink: `${dataBaseUrl}/${e.id}/spec_pink.csv`
+        }
       });
       
-      console.log('✅ Loaded experiment:', e.id, title);
+      const expTime = DEBUG ? performance.now() - expStart : 0;
+      if (DEBUG) {
+        console.log(`✅ Loaded experiment ${i+1}/${expList.length}: ${e.id} (${title}) - ${expTime.toFixed(1)}ms (core data only)`);
+      }
     } catch (err) {
-      console.warn('Failed to load experiment', e, err);
+      if (DEBUG) console.warn('Failed to load experiment', e, err);
+    }
+  }
+  
+  const hydrateTime = DEBUG ? performance.now() - hydrateStart : 0;
+  if (DEBUG) {
+    console.log(`⏱️ Total hydration took: ${hydrateTime.toFixed(1)}ms for ${rows.length} experiments`);
+    console.log(`📊 Performance Summary:`);
+    console.log(`  - Manifest load: ${manifestTime.toFixed(1)}ms`);
+    console.log(`  - Experiment hydration: ${hydrateTime.toFixed(1)}ms`);
+    console.log(`  - Average per experiment: ${(hydrateTime/rows.length).toFixed(1)}ms`);
+    
+    // Show debug info in the UI
+    if (DEBUG && rows.length > 0) {
+      const debugInfo = document.createElement('div');
+      debugInfo.style.cssText = 'position:fixed;top:10px;right:10px;background:#333;color:#fff;padding:10px;border-radius:5px;font-size:12px;z-index:1000;';
+      debugInfo.innerHTML = `
+        <strong>🐛 Debug Info</strong><br>
+        Manifest: ${manifestTime.toFixed(1)}ms<br>
+        Hydration: ${hydrateTime.toFixed(1)}ms<br>
+        Avg/exp: ${(hydrateTime/rows.length).toFixed(1)}ms<br>
+        <small>Add ?debug to URL</small>
+      `;
+      document.body.appendChild(debugInfo);
+      setTimeout(() => debugInfo.remove(), 10000); // Auto-remove after 10s
     }
   }
 
@@ -495,6 +734,108 @@
 
   selectToggleBtn?.addEventListener('click', toggleSelection);
   
+  // Refresh Manifest button - regenerates the experiment list
+  refreshManifestBtn?.addEventListener('click', async () => {
+    if (DEBUG) console.log('🔄 Refresh manifest requested');
+    const refreshStart = DEBUG ? performance.now() : 0;
+    stats.textContent = 'Regenerating manifest...';
+    
+    try {
+      // Generate fresh manifest
+      const newManifest = await generateManifest();
+      
+      // Clear current data
+      rows.length = 0;
+      selected.clear();
+      
+      // Reload with new experiments
+      const newExpList = newManifest.experiments || [];
+      stats.textContent = 'Loading fresh experiment data...';
+      
+      if (DEBUG) console.log(`🔄 Rehydrating ${newExpList.length} experiments after refresh`);
+      
+      for (let i = 0; i < newExpList.length; i++) {
+        const e = newExpList[i];
+        try {
+          if (DEBUG) stats.textContent = `Loading fresh data… (${i+1}/${newExpList.length})`;
+          
+          // Handle both old and new manifest formats
+          let metaUrl, scalarsUrl, paramsUrl, lossUrl, mseUrl;
+          
+          if (e.paths) {
+            // New format with explicit paths
+            metaUrl = `${dataBaseUrl}/${e.paths.meta}`;
+            scalarsUrl = `${dataBaseUrl}/${e.paths.scalars}`;
+            paramsUrl = `${dataBaseUrl}/${e.paths.params}`;
+            lossUrl = `${dataBaseUrl}/${e.paths.loss_ts}`;
+            mseUrl = `${dataBaseUrl}/${e.paths.mse_ts}`;
+          } else {
+            // Old format - construct paths
+            metaUrl = `${dataBaseUrl}/${e.id}/meta.json`;
+            scalarsUrl = `${dataBaseUrl}/${e.id}/scalars.json`;
+            paramsUrl = `${dataBaseUrl}/${e.id}/params.json`;
+            lossUrl = `${dataBaseUrl}/${e.id}/loss.csv`;
+            mseUrl = `${dataBaseUrl}/${e.id}/mse.csv`;
+          }
+          
+          // Load core data in parallel
+          const [meta, scalars, params, loss, mse] = await Promise.all([
+            fetchJSON(metaUrl).catch(()=> ({})),
+            fetchJSON(scalarsUrl).catch(()=> ({})),
+            fetchJSON(paramsUrl).catch(()=> ({})),
+            fetchCSV(lossUrl),
+            fetchCSV(mseUrl)
+          ]);
+          
+          // Load additional data types in parallel
+          const [predComplex, predPink, specComplex, specPink] = await Promise.all([
+            fetchCSV(`${dataBaseUrl}/${e.id}/pred_complex.csv`),
+            fetchCSV(`${dataBaseUrl}/${e.id}/pred_pink.csv`),
+            fetchCSV(`${dataBaseUrl}/${e.id}/spec_complex.csv`),
+            fetchCSV(`${dataBaseUrl}/${e.id}/spec_pink.csv`)
+          ]);
+          
+          // Extract accuracy timeseries
+          const accuracy = scalars.accuracy_series || (scalars.max_accuracy ? [scalars.max_accuracy] : null);
+
+          const title = e.title || meta.title || e.id;
+          const tags  = e.tags || meta.tags || [];
+          const date  = meta.date || scalars.date || null;
+          const tstamp = date ? Date.parse(date) : null;
+
+          rows.push({
+            id: e.id, 
+            path: `${dataBaseUrl}/${e.id}`,
+            title, tags, date,
+            tstamp: Number.isFinite(tstamp) ? tstamp : 0,
+            loss_last: loss?.last ?? null, 
+            mse_last: mse?.last ?? null,
+            loss_series: loss?.series ?? null, 
+            mse_series: mse?.series ?? null,
+            accuracy_series: accuracy,
+            pred_complex_series: predComplex?.series ?? null,
+            pred_pink_series: predPink?.series ?? null,
+            spec_complex_series: specComplex?.series ?? null,
+            spec_pink_series: specPink?.series ?? null,
+            meta, scalars, params
+          });
+          
+        } catch (err) {
+          if (DEBUG) console.warn('Failed to load experiment', e, err);
+        }
+      }
+      
+      render();
+      const refreshTime = DEBUG ? performance.now() - refreshStart : 0;
+      if (DEBUG) console.log(`⏱️ Full refresh took: ${refreshTime.toFixed(1)}ms`);
+      stats.textContent = `✅ Refreshed! Found ${rows.length} experiments`;
+      
+    } catch (error) {
+      stats.textContent = `Refresh failed: ${error.message}`;
+      console.error('Refresh error:', error);
+    }
+  });
+  
   q?.addEventListener('input', render);
   sort?.addEventListener('change', render);
   clear?.addEventListener('click', ()=> { if(q) q.value=''; render(); });
@@ -507,4 +848,3 @@
     if (stats) stats.textContent = `App error: ${error.message}`;
   }
 })();
-

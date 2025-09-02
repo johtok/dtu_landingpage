@@ -1,1 +1,0 @@
-{"units":{"inference_time":"ms","training_time":"s","max_accuracy":"-","model_size":"parameters","date":"date","minimal_loss":"-"},"experimenter":"Comprehensive Experiment Framework","notes":"Generated with comprehensive experiment framework using BenchmarkTools.jl","tags":["linear_1st","benchmarked","comprehensive"],"dataset":"Synthetic Loudspeaker Data"}
