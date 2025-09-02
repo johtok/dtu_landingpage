@@ -5,7 +5,7 @@ title = "Welcome"
 # 👋 Hi, I'm Johannes
 
 <div style="text-align: center; margin: 20px 0;">
-  <img src="/images/Me.jpg" alt="Me :)" style="
+  <img src="images/Me.jpg" alt="Me :)" style="
     width: 270px;
     max-width: 300px;
     border-radius: 12px;
@@ -16,7 +16,7 @@ title = "Welcome"
 
 I'm a geek and master's student at **DTU** specializing in **loudspeakers**, **machine learning**, and **acoustics**. I fall into rabbit holes related to the topics above!
 
-This is the home for my personal projects, Master thesis results, and more 🤗
+This is the home for all my master thesis related material 😊🙌
 
 ---
 

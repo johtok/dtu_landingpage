@@ -40,7 +40,9 @@
       <option value="loss">Final loss</option>
       <option value="mse">Final MSE</option>
     </select>
-    <!-- NEW: Compare button -->
+    <!-- Selection controls -->
+    <button id="select-toggle" class="btn" type="button">Select All</button>
+    <!-- Compare button -->
     <button id="compare" class="btn" type="button" disabled>Compare (0)</button>
     <button id="clear" class="btn" type="button">Clear</button>
   </div>
@@ -93,7 +95,24 @@
 
         <!-- Plotly (CDN) -->
         <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-        <script defer src="{{ get_url(path="/master/app.js") }}"></script>
+        <script>
+            // Generate URLs that work both locally and deployed
+            const fullManifestUrl = "{{ get_url(path="/master-data/manifest.json") | safe }}";
+            const fullDataUrl = "{{ get_url(path="/master-data") | safe }}";
+            
+            // If running locally, use relative paths; if deployed, use full URLs
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            window.MANIFEST_URL = isLocal ? '/master-data/manifest.json' : fullManifestUrl;
+            window.DATA_BASE_URL = isLocal ? '/master-data' : fullDataUrl;
+            
+            console.log('Environment:', isLocal ? 'local' : 'deployed');
+            console.log('Using URLs:', {
+                manifest: window.MANIFEST_URL,
+                dataBase: window.DATA_BASE_URL
+            });
+        </script>
+        <script defer src="{{ get_url(path="/master/app.js") }}?v={{ now() | date(format="%s") }}"></script>
         </section>
     </div>
 </div>

@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+Allow: /
+Sitemap: https://www.student.dtu.dk/~s203871/sitemap.xml

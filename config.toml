@@ -1,4 +1,4 @@
-base_url = "http://www.student.dtu.dk/~s203871/"
+base_url = "https://www.student.dtu.dk/~s203871/"
 title = "Johannes Nørskov Toke"
 description = "Loudspeakers • ML • Acoustics"
 theme = "terminimal"
@@ -18,7 +18,7 @@ logo_home_link = "/"
 # Top navigation menu
 menu_items = [
   { name = "home", url = "$BASE_URL/" },
-  { name = "master", url = "$BASE_URL/master/", submenu = [{ name = "plan", url = "$BASE_URL/master/plan/" }, { name = "results", url = "$BASE_URL/master/results/" }, { name = "mindmap", url = "$BASE_URL/master/mindmap/" }] },
+  { name = "master", url = "$BASE_URL/master/", submenu = [{ name = "research question", url = "$BASE_URL/master/mindmap/" }, { name = "plan", url = "$BASE_URL/master/plan/" }, { name = "results", url = "$BASE_URL/master/results/" }] },
   { name = "github", url = "https://github.com/johtok", newtab = true },
   { name = "linkedin", url = "https://www.linkedin.com/in/johannes-n%C3%B8rskov-t-6b3a24134/", newtab = true },
   { name = "email", url = "mailto:s203871@student.dtu.dk" }
