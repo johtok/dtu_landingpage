@@ -23,6 +23,7 @@ This website serves as a comprehensive platform for presenting master's thesis r
 
 ### Prerequisites
 - [Zola](https://www.getzola.org/documentation/getting-started/installation/) static site generator
+- Optional (for TensorBoard ingestion): `pip install tensorboard`
 
 ### Local Development
 To serve the site locally with hot reloading:
@@ -43,6 +44,23 @@ To build the static site for production:
 zola build
 ```
 Generated files will be in the `public/` directory.
+
+### Using TensorBoard Logs
+You can ingest TensorBoard runs into the interactive dashboard format using the exporter:
+
+```bash
+python3 tools/tb_export.py --logdir /path/to/tensorboard/logdir --outdir public/master-data
+```
+
+The script scans runs under `--logdir`, extracts scalar tags (preferring `loss`, `mse`, `accuracy` by heuristics), and writes `meta.json`, `scalars.json`, and `loss.csv`/`mse.csv` per run, plus a `manifest.json` the app consumes. Customize tag preferences if needed:
+
+```bash
+python3 tools/tb_export.py \
+  --logdir ~/runs \
+  --loss-tags "loss,train/loss,val_loss" \
+  --mse-tags "mse,metrics/mse" \
+  --acc-tags "accuracy,val_accuracy"
+```
 
 ## Deployment
 
