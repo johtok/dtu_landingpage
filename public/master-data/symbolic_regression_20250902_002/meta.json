@@ -1,1 +1,0 @@
-{"units":{"inference_time":"ms","training_time":"s","max_accuracy":"-","model_size":"parameters","date":"date","minimal_loss":"-"},"experimenter":"AutoRunner","notes":"experiments/symbolic_regression.jl","tags":["sr","symbolic"],"dataset":"Synthetic"}
